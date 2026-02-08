@@ -26,7 +26,7 @@ The architecture follows a decentralized model where cross-cutting concerns (dis
 
 ## 🛡️ Resilience & Fault Tolerance
 
-In a senior-level architecture, the system is designed to fail gracefully. This ecosystem implements:
+The system is designed to fail gracefully. This ecosystem implements:
 
 * **Load Balancing**: Integrated with **Spring Cloud LoadBalancer** for intelligent traffic distribution across service instances.
 * **Circuit Breaker Pattern**: Powered by **Resilience4j**, preventing cascading failures when a downstream service becomes unresponsive.
