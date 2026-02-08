@@ -1,46 +1,80 @@
-# Naming Server (Eureka Service Discovery)
+# 🌐 Enterprise Currency Microservices Ecosystem
 
-This project serves as the **Service Discovery** component for the microservices architecture, implemented using **Spring Cloud Netflix Eureka**. It acts as a central registry where microservices register themselves and discover other registered services, enabling client-side load balancing and decoupling service providers from consumers.
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen)](https://spring.io/projects/spring-boot)
+[![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2023.x-blue)](https://spring.io/projects/spring-cloud)
+[![Java](https://img.shields.io/badge/Java-17%2B-orange)](https://www.oracle.com/java/)
 
-## 🚀 Technologies & Stack
+A production-ready distributed system built with **Spring Boot 3.x** and **Spring Cloud**. This project demonstrates a cloud-native architecture for currency valuation and conversion, focusing on high availability, externalized configuration, and automated service discovery.
 
-- **Java SDK**: Version 25
-- **Framework**: Spring Boot (Spring MVC)
-- **Service Discovery**: Spring Cloud Netflix Eureka Server
-- **Build Tool**: Maven
-- **Standard**: Jakarta EE
+---
 
-## 📋 Prerequisites
+## 🏛️ System Architecture
 
-Before running the application, ensure you have the following installed:
+The architecture follows a decentralized model where cross-cutting concerns (discovery, config, routing) are decoupled from the core business logic.
 
-- **Java Development Kit (JDK) 25**
-- **Maven** (or use the provided `mvnw` wrapper)
 
-## ⚙️ Configuration
+### Infrastructure Layer
+* **[Naming Server (Eureka)](./naming-server)**: Implements **Service Discovery**. It acts as a central registry where microservices register themselves, enabling dynamic routing without hardcoded IPs.
+* **[API Gateway](./api-gateway)**: Powered by **Spring Cloud Gateway**. Provides a unified entry point, handling request routing and security perimeters.
+* **[Config Server](./spring-cloud-config-server)**: Centralized management for environment-specific properties (Dev, QA, Prod), ensuring a **Single Source of Truth** for configuration.
 
-The application is configured to run as a standalone Eureka Server. Key configurations in `src/main/resources/application.properties`:
+### Domain Layer (Business Logic)
+* **[Currency Exchange Service](./currency-exchange-microservice)**: The core data provider for currency rates.
+* **[Currency Conversion Service](./currency-conversion-service)**: An orchestrator service that consumes the Exchange service via **Declarative Feign Clients** to perform real-time calculations.
 
-| Property | Value | Description |
-| :--- | :--- | :--- |
-| `spring.application.name` | `naming-server` | Service identifier |
-| `server.port` | `8761` | Standard Eureka port |
-| `eureka.client.register-with-eureka` | `false` | Prevents server from registering with itself |
-| `eureka.client.fetch-registry` | `false` | Prevents server from fetching registry info |
+---
 
-## 🛠️ Build and Run
+## 🛡️ Resilience & Fault Tolerance
 
-### Using Maven Wrapper (Recommended)
+In a senior-level architecture, the system is designed to fail gracefully. This ecosystem implements:
 
-1.  **Clean and Build**:
-    ```bash
-    ./mvnw clean package
-    ```
+* **Load Balancing**: Integrated with **Spring Cloud LoadBalancer** for intelligent traffic distribution across service instances.
+* **Circuit Breaker Pattern**: Powered by **Resilience4j**, preventing cascading failures when a downstream service becomes unresponsive.
+* **Declarative REST Clients**: Using **OpenFeign** to abstract inter-service communication, reducing boilerplate and improving testability.
 
-2.  **Run the Application**:
-    ```bash
-    ./mvnw spring-boot:run
-    ```
 
-### Using Local Maven
+---
 
+## 🚀 Getting Started
+
+### Prerequisites
+* **Java 17+** (LTS)
+* **Maven 3.8+**
+* **Docker & Docker Compose**
+
+### The "Critical Path" Startup Sequence
+In distributed systems, startup order matters. Launch the services in this specific sequence:
+
+1.  **Config Server** (Port `8888`): Must be ready to provide configuration.
+2.  **Naming Server** (Port `8761`): Must be up so subsequent services can register.
+3.  **Domain Microservices** (Ports `8000`, `8100`): Business logic initialization.
+4.  **API Gateway** (Port `8765`): Enable external traffic flow.
+
+### Rapid Deployment with Docker
+```bash
+# Compile and build JARs
+mvn clean package -DskipTests
+
+# Spin up the entire ecosystem
+docker-compose up -d
+
+
+## 📊 Observability & Monitoring
+
+This project is instrumented for production-grade monitoring:
+
+Distributed Tracing: Uses Micrometer Tracing and Zipkin to visualize request spans across multiple service boundaries.
+
+Health & Metrics: Spring Boot Actuator exposes vital health checks and performance metrics, ready for Prometheus/Grafana integration.
+
+## 🔌 API Verification (Example Endpoints)
+
+Service	                      Gateway Route (Port 8765)	                                 Description
+Exchange	                  /currency-exchange/from/USD/to/INR	                     Fetch exchange rate
+Conversion	                  /currency-conversion/from/USD/to/INR/quantity/10	         Convert currency amount
+Discovery	                  http://localhost:8761	                                     Eureka Dashboard UI
+
+
+👤 Author
+Alberto Raaz
+February, 2026.
